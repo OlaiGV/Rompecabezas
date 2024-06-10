@@ -1,0 +1,57 @@
+@import url("https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@100..900&family=Nabla&display=swap");
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  color: #0c67ae;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2em;
+  height: 90vh;
+  width: 99%;
+  background-color: rgb(162, 161, 160);
+}
+
+.titulo {
+  font-family: "Grenze Gotisch", serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  font-size: 25px;
+}
+
+.tablero {
+  width: 360px;
+  height: 360px;
+  background-color: lightblue;
+  border: 8px solid #0c67ae;
+  border-radius: 15px;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.8));
+}
+
+.tablero img {
+  width: 118px;
+  height: 118px;
+  border: 1px solid #0c67ae;
+  border-radius: 5px;
+}
+
+.turnos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  font-family: "Nabla", system-ui;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: "EDPT" 100, "EHLT" 12;
+  font-size: 50px;
+}
