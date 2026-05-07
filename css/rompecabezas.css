@@ -1,57 +1,146 @@
-@import url("https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@100..900&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@100..900&family=Nabla&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;700&family=DM+Mono:ital,wght@0,400;0,500&display=swap");
+
+:root {
+  --bg: #e8e3dc;
+  --board-bg: #f9f7f4;
+  --accent: #1b2e40;
+  --accent-mid: #2e4d65;
+  --pop: #bf6e3a;
+  --text-muted: #7a8c99;
+  --gap: 5px;
+  --board-size: min(82vw, 48vh, 400px);
+  --tile-size: calc((var(--board-size) - 4 * var(--gap)) / 3);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
-  text-align: center;
-  color: #0c67ae;
+  font-family: "DM Mono", monospace;
+  background-color: var(--bg);
+  color: var(--accent);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2em;
-  height: 90vh;
-  width: 99%;
-  background-color: rgb(162, 161, 160);
+  min-height: 100dvh;
+  gap: clamp(0.8rem, 2.5vh, 1.8rem);
+  padding: 1rem;
 }
 
-.titulo {
+/* ── Título ─────────────────────────────── */
+.titulo h1 {
   font-family: "Grenze Gotisch", serif;
-  font-optical-sizing: auto;
-  font-style: normal;
-  font-size: 25px;
+  font-size: clamp(2rem, 9vw, 3.8rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  line-height: 1;
 }
 
+/* ── Tablero ─────────────────────────────── */
 .tablero {
-  width: 360px;
-  height: 360px;
-  background-color: lightblue;
-  border: 8px solid #0c67ae;
-  border-radius: 15px;
-  padding: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.8));
+  width: var(--board-size);
+  height: var(--board-size);
+  background-color: var(--board-bg);
+  border-radius: 14px;
+  padding: var(--gap);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: var(--gap);
+  box-shadow:
+    0 2px 6px rgba(27, 46, 64, 0.08),
+    0 10px 30px rgba(27, 46, 64, 0.14);
 }
 
 .tablero img {
-  width: 118px;
-  height: 118px;
-  border: 1px solid #0c67ae;
-  border-radius: 5px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: grab;
+  display: block;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  -webkit-user-drag: element;
 }
 
-.turnos {
+.tablero img:active {
+  cursor: grabbing;
+}
+
+.tablero img:hover:not(.blank) {
+  transform: scale(1.04);
+  box-shadow: 0 4px 14px rgba(27, 46, 64, 0.22);
+}
+
+.tablero img.blank {
+  opacity: 0;
+  cursor: default;
+}
+
+/* ── Stats ─────────────────────────────── */
+.info {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5em;
-  font-family: "Nabla", system-ui;
-  font-optical-sizing: auto;
+  gap: clamp(1.5rem, 7vw, 4rem);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15em;
+}
+
+.stat-value {
+  font-family: "DM Mono", monospace;
+  font-size: clamp(1.8rem, 7vw, 2.8rem);
+  font-weight: 500;
+  color: var(--pop);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.stat-label {
+  font-family: "DM Mono", monospace;
+  font-size: clamp(0.55rem, 2vw, 0.7rem);
   font-weight: 400;
-  font-style: normal;
-  font-variation-settings: "EDPT" 100, "EHLT" 12;
-  font-size: 50px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 2.8rem;
+  background-color: var(--accent-mid);
+  opacity: 0.25;
+}
+
+/* ── Botón ─────────────────────────────── */
+.reiniciar {
+  font-family: "DM Mono", monospace;
+  font-size: clamp(0.7rem, 2.5vw, 0.85rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.65em 2em;
+  background-color: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.reiniciar:hover {
+  background-color: var(--accent);
+  color: var(--bg);
+}
+
+.reiniciar:active {
+  transform: scale(0.97);
 }

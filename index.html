@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,16 +9,24 @@
 
     <!-- Hoja de Estilos CSS -->
     <link rel="stylesheet" href="./css/rompecabezas.css" />
-
-    <!-- JavaScript -->
-    <script src="./js/rompecabezas.js"></script>
   </head>
   <body>
-    <div class="titulo"><h1>ROMPECABEZAS</h1></div>
+    <div class="titulo"><h1>Rompecabezas</h1></div>
     <div class="tablero"></div>
-    <div class="turnos">
-      MOVIMIENTOS:
-      <p class="turno">0</p>
+    <div class="info">
+      <div class="stat">
+        <span class="stat-value turno">0</span>
+        <span class="stat-label">Movimientos</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-value tiempo">00:00</span>
+        <span class="stat-label">Tiempo</span>
+      </div>
     </div>
+    <button class="reiniciar">↺ Nueva partida</button>
+
+    <!-- JavaScript -->
+    <script src="./js/rompecabezas.js" defer></script>
   </body>
 </html>

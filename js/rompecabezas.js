@@ -1,102 +1,165 @@
-window.onload = function () {
-  const filas = 3;
-  const columnas = 3;
-  let imgOrder = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+document.addEventListener("DOMContentLoaded", function () {
+  const FILAS = 3;
+  const COLUMNAS = 3;
+  const BLANK_SRC =
+    "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
   let turnos = 0;
-  let mosaicoActual, otroMosaico; // Declarar las variables aquí
+  let segundos = 0;
+  let timerInterval = null;
+  let mosaicoArrastrado = null;
+  let blankTile = null;
 
-  // Definir las carpetas de imágenes
-  let carpetas = ["asturias", "doraemon", "paisaje", "puente"];
+  const carpetas = ["asturias", "doraemon", "paisaje", "puente"];
 
-  // Función para seleccionar una carpeta al azar
   function seleccionarCarpeta() {
-    let index = Math.floor(Math.random() * carpetas.length);
-    return carpetas[index];
+    return carpetas[Math.floor(Math.random() * carpetas.length)];
   }
 
-  // Seleccionar una carpeta
-  let carpetaSeleccionada = seleccionarCarpeta();
-  console.log(carpetaSeleccionada)
-
-  // Función para mezclar el array
+  // Fisher-Yates shuffle (distribución uniforme)
   function mezclarArray(array) {
-    return array.sort(() => Math.random() - 0.5);
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   }
 
-  // Mezclar el array imgOrder
-  imgOrder = mezclarArray(imgOrder);
+  function formatTime(s) {
+    const m = Math.floor(s / 60).toString().padStart(2, "0");
+    const sec = (s % 60).toString().padStart(2, "0");
+    return `${m}:${sec}`;
+  }
 
-  for (let r = 0; r < filas; r++) {
-    for (let c = 0; c < columnas; c++) {
-      // Crear una nueva imagen
-      let mosaico = document.createElement("img");
-      mosaico.id = `${r}-${c}`;
-      mosaico.src = `./imagenes/${carpetaSeleccionada}/${imgOrder.pop()}.jpg`;
+  function iniciarTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    segundos = 0;
+    document.querySelector(".tiempo").textContent = "00:00";
+    timerInterval = setInterval(() => {
+      segundos++;
+      document.querySelector(".tiempo").textContent = formatTime(segundos);
+    }, 1000);
+  }
 
-      // Añadir funcionalidad de arrastrar y soltar
-      mosaico.addEventListener("dragstart", iniciarArrastre);
-      mosaico.addEventListener("dragover", duranteArrastre);
-      mosaico.addEventListener("dragenter", entrarArrastre);
-      mosaico.addEventListener("dragleave", salirArrastre);
-      mosaico.addEventListener("drop", soltarArrastre);
-      mosaico.addEventListener("dragend", finalizarArrastre);
+  function verificarVictoria() {
+    const piezas = [...document.querySelectorAll(".tablero img")];
+    for (let i = 0; i < piezas.length - 1; i++) {
+      if (piezas[i].dataset.piece !== String(i + 1)) return false;
+    }
+    return piezas[piezas.length - 1].dataset.piece === "blank";
+  }
 
-      // Añadir el mosaico al tablero
-      document.querySelector(".tablero").append(mosaico);
+  function intentarMover(mosaico) {
+    if (!mosaico || mosaico === blankTile) return;
+
+    const [r, c] = mosaico.id.split("-").map(Number);
+    const [rb, cb] = blankTile.id.split("-").map(Number);
+
+    const esAdyacente =
+      (r === rb && Math.abs(c - cb) === 1) ||
+      (c === cb && Math.abs(r - rb) === 1);
+
+    if (!esAdyacente) return;
+
+    // Intercambiar contenido visual y lógico entre mosaico y pieza vacía
+    const tmpSrc = mosaico.src;
+    const tmpPiece = mosaico.dataset.piece;
+    const tmpAlt = mosaico.alt;
+
+    mosaico.src = BLANK_SRC;
+    mosaico.dataset.piece = "blank";
+    mosaico.classList.add("blank");
+    mosaico.draggable = false;
+    mosaico.alt = "";
+
+    blankTile.src = tmpSrc;
+    blankTile.dataset.piece = tmpPiece;
+    blankTile.classList.remove("blank");
+    blankTile.draggable = true;
+    blankTile.alt = tmpAlt;
+
+    blankTile = mosaico;
+
+    turnos++;
+    document.querySelector(".turno").textContent = turnos;
+
+    if (verificarVictoria()) {
+      clearInterval(timerInterval);
+      setTimeout(() => {
+        alert(
+          `¡Puzzle resuelto en ${turnos} movimientos y ${formatTime(segundos)}!`
+        );
+      }, 150);
     }
   }
 
-  console.log(imgOrder); // Imprime el array mezclado
+  function iniciarJuego() {
+    turnos = 0;
+    document.querySelector(".turno").textContent = "0";
 
-  function iniciarArrastre() {
-    mosaicoActual = this; // 'this' se refiere al mosaico de imagen que se está arrastrando
+    tablero.innerHTML = "";
+
+    const carpetaSeleccionada = seleccionarCarpeta();
+    const piezas = mezclarArray([
+      "1", "2", "3", "4", "5", "6", "7", "8", "blank",
+    ]);
+
+    for (let r = 0; r < FILAS; r++) {
+      for (let c = 0; c < COLUMNAS; c++) {
+        const pieza = piezas[r * COLUMNAS + c];
+        const mosaico = document.createElement("img");
+        mosaico.id = `${r}-${c}`;
+        mosaico.dataset.piece = pieza;
+
+        if (pieza === "blank") {
+          mosaico.src = BLANK_SRC;
+          mosaico.classList.add("blank");
+          mosaico.alt = "";
+          mosaico.draggable = false;
+          blankTile = mosaico;
+        } else {
+          mosaico.src = `./imagenes/${carpetaSeleccionada}/${pieza}.jpg`;
+          mosaico.alt = `Pieza ${pieza}`;
+          mosaico.draggable = true;
+        }
+
+        // Solo dragstart en cada pieza para identificar cuál se arrastra
+        mosaico.addEventListener("dragstart", function (e) {
+          mosaicoArrastrado = this;
+          e.dataTransfer.effectAllowed = "move";
+        });
+        mosaico.addEventListener("dragend", () => {
+          mosaicoArrastrado = null;
+        });
+
+        // Soporte táctil: toca una pieza adyacente al hueco para deslizarla
+        mosaico.addEventListener(
+          "touchend",
+          function (e) {
+            e.preventDefault();
+            intentarMover(this);
+          },
+          { passive: false }
+        );
+
+        tablero.append(mosaico);
+      }
+    }
+
+    iniciarTimer();
   }
 
-  function duranteArrastre(e) {
+  const tablero = document.querySelector(".tablero");
+
+  // Drag delegado al contenedor — se registra una sola vez
+  tablero.addEventListener("dragover", (e) => e.preventDefault());
+  tablero.addEventListener("drop", (e) => {
     e.preventDefault();
-  }
+    if (mosaicoArrastrado) intentarMover(mosaicoArrastrado);
+  });
 
-  function entrarArrastre(e) {
-    e.preventDefault();
-  }
+  document.querySelector(".reiniciar").addEventListener("click", iniciarJuego);
+  iniciarJuego();
+});
 
-  function salirArrastre() {}
-
-  function soltarArrastre() {
-    otroMosaico = this; // 'this' se refiere al mosaico de imagen sobre el que se está soltando
-  }
-
-  function finalizarArrastre() {
-    if (!otroMosaico.src.includes("3.jpg")) {
-      return;
-    }
-
-    let coordsActuales = mosaicoActual.id.split("-"); // ej. "0-0" -> ["0", "0"]
-    let r = parseInt(coordsActuales[0]);
-    let c = parseInt(coordsActuales[1]);
-
-    let otrasCoords = otroMosaico.id.split("-");
-    let r2 = parseInt(otrasCoords[0]);
-    let c2 = parseInt(otrasCoords[1]);
-
-    let moverIzquierda = r == r2 && c2 == c - 1;
-    let moverDerecha = r == r2 && c2 == c + 1;
-
-    let moverArriba = c == c2 && r2 == r - 1;
-    let moverAbajo = c == c2 && r2 == r + 1;
-
-    let esAdyacente =
-      moverIzquierda || moverDerecha || moverArriba || moverAbajo;
-
-    if (esAdyacente) {
-      let imgActual = mosaicoActual.src;
-      let otraImg = otroMosaico.src;
-
-      mosaicoActual.src = otraImg;
-      otroMosaico.src = imgActual;
-
-      turnos += 1;
-      document.querySelector(".turno").innerText = turnos;
-    }
-  }
-};
